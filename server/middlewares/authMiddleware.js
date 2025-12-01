@@ -1,0 +1,12 @@
+export const protect = async (res, req, next)=> {
+    try {
+        const {userId} = await req.auth();
+        if(!userId){
+            return res.status(401).json({message: "Unauthorized"})
+        }
+        next();
+    } catch (error) {
+        console.log(error);
+        return res.status(401).json({message: error.code || error.message})
+    }
+}
