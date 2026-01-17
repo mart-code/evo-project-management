@@ -1,5 +1,7 @@
 //Create task
 
+import { inngest } from "../inngest";
+
 export const createTask = async (req, res) => {
   try {
     const { userId } = await req.auth();
@@ -51,7 +53,12 @@ export const createTask = async (req, res) => {
       where: { id: task.id },
       include: { assignee: true },
     });
-    res.status(201).json(taskWithAssignee);
+
+    await inngest.send({
+      name: 'app/task.assigned',
+      data: {taskId: task.id, origin}
+    })
+    res.status(201).json({task: taskWithAssignee, message: "Task created successfully"});
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.code || error.message });
