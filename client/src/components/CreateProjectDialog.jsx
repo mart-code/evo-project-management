@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import api from '../configs/api';
 import {useAuth} from '@clerk/clerk-react'
+import { addProject } from "../redux/slices/projectSlice";
 const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
 const {getToken} = useAuth()
 const dispatch = useDispatch()
@@ -30,7 +31,7 @@ const dispatch = useDispatch()
                 return toast.error("Please select a team lead");
             }
             setIsSubmitting(true);
-            const {data} = await api.post('/api/projects', {workspace_id: currentWorkspace.id, ...formData}, {Authorization: `Bearer ${await getToken()}`});
+            const {data} = await api.post('/api/projects', {workspaceId: currentWorkspace.id, ...formData}, {headers: {Authorization: `Bearer ${await getToken()}`}});
             dispatch(addProject(data.project))
            setIsDialogOpen(false);
         }catch(error){

@@ -2,12 +2,19 @@ import { useState } from "react";
 import { Mail, UserPlus } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+import {useAuth} from '@clerk/clerk-react';
+import { useDispatch } from "react-redux";
+import api from "../configs/api";
+
 
 const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
 
     const [searchParams] = useSearchParams();
 
     const id = searchParams.get('id');
+
+    const {getToken} = useAuth();
+    const dispatch = useDispatch();
 
     const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace || null);
 
@@ -19,8 +26,13 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-    };
+        setIsAdding(true);
+
+        try {
+            await api.post(`/api/projects`)
+    } catch (error) {
+
+    }
 
     if (!isDialogOpen) return null;
 
