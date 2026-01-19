@@ -15,7 +15,8 @@ export const createTask = async (req, res) => {
       assigneeId,
       due_date,
     } = req.body;
-    const origin = req;
+    
+  const origin = req.headers.origin;
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: { members: { include: { user: true } } },
@@ -53,6 +54,8 @@ export const createTask = async (req, res) => {
       where: { id: task.id },
       include: { assignee: true },
     });
+
+    
 
     await inngest.send({
       name: 'app/task.assigned',
