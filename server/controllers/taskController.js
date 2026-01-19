@@ -1,6 +1,6 @@
 //Create task
 
-import { inngest } from "../inngest";
+import { inngest } from "../inngest/index.js";
 
 export const createTask = async (req, res) => {
   try {
@@ -15,8 +15,8 @@ export const createTask = async (req, res) => {
       assigneeId,
       due_date,
     } = req.body;
-    
-  const origin = req.headers.origin;
+
+    const origin = req.headers.origin;
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       include: { members: { include: { user: true } } },
@@ -55,13 +55,13 @@ export const createTask = async (req, res) => {
       include: { assignee: true },
     });
 
-    
-
     await inngest.send({
-      name: 'app/task.assigned',
-      data: {taskId: task.id, origin}
-    })
-    res.status(201).json({task: taskWithAssignee, message: "Task created successfully"});
+      name: "app/task.assigned",
+      data: { taskId: task.id, origin },
+    });
+    res
+      .status(201)
+      .json({ task: taskWithAssignee, message: "Task created successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.code || error.message });
@@ -94,12 +94,11 @@ export const updateTask = async (req, res) => {
     }
 
     const updatedTask = await prisma.task.update({
-        where: { id: req.params.id },
-        data: req.body,
-    })
+      where: { id: req.params.id },
+      data: req.body,
+    });
 
-    res.json({task: updatedTask,  message: "Task updated successfully"});
-
+    res.json({ task: updatedTask, message: "Task updated successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.code || error.message });
@@ -109,14 +108,14 @@ export const updateTask = async (req, res) => {
 //Delete task
 export const deleteTask = async (req, res) => {
   try {
-    const {userId} = await req.auth();
-    const {taskId} = req.params;
+    const { userId } = await req.auth();
+    const { taskId } = req.params;
     const tasks = await prisma.task.findMany({
-    where: {id: {in: taskIds}}
-    })
+      where: { id: { in: taskIds } },
+    });
 
-    if(tasks.length === 0){
-        return res.status(404).json({message: "No tasks found"});
+    if (tasks.length === 0) {
+      return res.status(404).json({ message: "No tasks found" });
     }
 
     const project = await prisma.project.findUnique({
@@ -133,12 +132,10 @@ export const deleteTask = async (req, res) => {
     }
 
     await prisma.task.deleteMany({
-        where: {id: {in: taskIds}}
+      where: { id: { in: taskIds } },
+    });
 
-    })
-
-    res.json({message: "Task deleted successfully"});
-
+    res.json({ message: "Task deleted successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.code || error.message });
